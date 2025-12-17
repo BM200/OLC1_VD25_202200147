@@ -38,12 +38,12 @@ parser code
         scanner s;
         parser(scanner s){this.s = s;};
         public void syntax_error(Symbol s){
-        listaErrores.add(new Errores("SINTACTICO", "No se el componente" + s.value, s.left, s.right));
+        listaErrores.add(new Errores("SINTACTICO", "No se esperaba el componente " + s.value, s.left, s.right));
         System.out.println("Error sintactico en la linea " + (s.left) + "y columna " + (s.right) + ". No se esperaba el siguiente componente: " + (s.value));
         }
         public void unrecovered_syntax_error(Symbol s){
-             listaErrores.add(new Errores("SINTACTICO", "No se el componente" + s.value, s.left, s.right));
-            System.out.println("Error sintactico no recuperable en la linea " + (s.left) + "y columna " + (s.right) + ". No se esperaba el siguiente componente: " + (s.value));
+             listaErrores.add(new Errores("SINTACTICO", "No se esperaba el componente " + s.value, s.left, s.right));
+            System.out.println("Error sintactico no recuperable en la linea " + (s.left) + " y columna " + (s.right) + ". No se esperaba el siguiente componente: " + (s.value));
         }
         
 
@@ -114,8 +114,8 @@ INSTRUCCION ::= PRINT PAR1 EXPRESION:a PAR2 FINCADENA {: RESULT =  new Print(a, 
                 | CONTINUE:a           {:RESULT = a; :}
                 | ID:a MASMAS FINCADENA     {: RESULT = new Incremento(a, true, aleft, aright); :}
                 | ID:a MENOSMENOS FINCADENA {: RESULT = new Incremento(a, false, aleft, aright); :}
-                | error FINCADENA
-                | error 
+                | error FINCADENA {: RESULT = null; :}
+                | error {: RESULT = null;:}
 ;
 // --- SENTENCIAS DE CONTROL ---
 

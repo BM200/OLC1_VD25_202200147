@@ -579,12 +579,12 @@ public class parser extends java_cup.runtime.lr_parser {
         scanner s;
         parser(scanner s){this.s = s;};
         public void syntax_error(Symbol s){
-        listaErrores.add(new Errores("SINTACTICO", "No se el componente" + s.value, s.left, s.right));
+        listaErrores.add(new Errores("SINTACTICO", "No se esperaba el componente " + s.value, s.left, s.right));
         System.out.println("Error sintactico en la linea " + (s.left) + "y columna " + (s.right) + ". No se esperaba el siguiente componente: " + (s.value));
         }
         public void unrecovered_syntax_error(Symbol s){
-             listaErrores.add(new Errores("SINTACTICO", "No se el componente" + s.value, s.left, s.right));
-            System.out.println("Error sintactico no recuperable en la linea " + (s.left) + "y columna " + (s.right) + ". No se esperaba el siguiente componente: " + (s.value));
+             listaErrores.add(new Errores("SINTACTICO", "No se esperaba el componente " + s.value, s.left, s.right));
+            System.out.println("Error sintactico no recuperable en la linea " + (s.left) + " y columna " + (s.right) + ". No se esperaba el siguiente componente: " + (s.value));
         }
         
 
@@ -818,7 +818,7 @@ class CUP$parser$actions {
           case 16: // INSTRUCCION ::= error FINCADENA 
             {
               Instruccion RESULT =null;
-
+		 RESULT = null; 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("INSTRUCCION",2, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -827,7 +827,7 @@ class CUP$parser$actions {
           case 17: // INSTRUCCION ::= error 
             {
               Instruccion RESULT =null;
-
+		 RESULT = null;
               CUP$parser$result = parser.getSymbolFactory().newSymbol("INSTRUCCION",2, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;

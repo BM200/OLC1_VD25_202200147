@@ -66,6 +66,7 @@ public class Principal extends javax.swing.JFrame {
         jLabel1.setText("jLabel1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(900, 850));
         getContentPane().setLayout(null);
 
         panel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -139,59 +140,51 @@ public class Principal extends javax.swing.JFrame {
         String entrada = txtContenidoEntrada.getText();
 
         try {
-            // 1. Crear analizadores
             scanner s = new scanner(new StringReader(entrada));
             parser p = new parser(s);
 
-            // 2. Ejecutar análisis sintáctico
+            // Ejecutar análisis (Ahora con recuperación de errores gracias al CUP modificado)
             var resultado = p.parse();
 
-            // 3. Validar Errores
-            LinkedList<Errores> listaErrores = new LinkedList<>();
-            listaErrores.addAll(s.listaErrores);
-            listaErrores.addAll(p.listaErrores);
+            // 1. Inicializar Arbol y Tabla Globales
+            LinkedList<Instruccion> ast = (LinkedList<Instruccion>) resultado.value;
+            this.tablaGlobal = new tablaSimbolos(null);
+            this.tablaGlobal.setNombre("GLOBAL");
 
-            if (!listaErrores.isEmpty()) {
-                txtConsola.setText("--- ERRORES DE COMPILACIÓN ---\n");
-                for (Errores err : listaErrores) {
-                    txtConsola.append(err.toString() + "\n");
+            // Si el parser devolvió null (fallo total), inicializamos lista vacía
+            if (ast == null) ast = new LinkedList<>();
+
+            this.arbolGlobal = new Arbol(ast);
+
+            // 2. Agregar errores de compilación detectados (Léxicos/Sintácticos) al reporte
+            this.arbolGlobal.errores.addAll(s.listaErrores);
+            this.arbolGlobal.errores.addAll(p.listaErrores);
+
+            // 3. EJECUTAR EL AST (Incluso si hubo errores sintácticos previos)
+            //    Esto permitirá que se guarden las variables válidas antes del error.
+
+            txtConsola.setText(""); // Limpiar consola
+
+            for (Instruccion ins : ast) {
+                // IMPORTANTE: Como agregamos "error" en el CUP que retorna null,
+                // debemos validar que la instrucción no sea null antes de ejecutarla.
+                if (ins == null) continue; 
+
+                var res = ins.interpretar(this.arbolGlobal, this.tablaGlobal);
+
+                if (res instanceof Errores) {
+                    this.arbolGlobal.errores.add((Errores) res);
                 }
-                return; 
             }
 
-            // 4. Obtener AST
-            LinkedList<Instruccion> ast = (LinkedList<Instruccion>) resultado.value;
+            // 4. Mostrar Salidas
+            txtConsola.setText(this.arbolGlobal.getConsolas());
 
-            // 5. Ejecutar AST
-            if (ast != null) {
-                txtConsola.setText(""); 
-
-                // Tabla Global (iniciamos sin padre)
-                this.tablaGlobal = new tablaSimbolos(null); 
-                this.tablaGlobal.setNombre("GLOBAL");
-
-                this.arbolGlobal = new Arbol(ast);
-
-                for (Instruccion ins : ast) {
-                    if (ins == null) continue;
-
-                    var res = ins.interpretar(this.arbolGlobal, tablaGlobal);
-
-                    if (res instanceof Errores) {
-                        this.arbolGlobal.errores.add((Errores) res);
-                    }
-                }
-
-                // --- AQUÍ ESTABA EL ERROR, AHORA USA getConsolas() ---
-                txtConsola.setText(this.arbolGlobal.getConsolas());
-                // ----------------------------------------------------
-
-                // Mostrar Errores Semánticos
-                if (!this.arbolGlobal.errores.isEmpty()) {
-                    txtConsola.append("\n--- ERRORES SEMÁNTICOS ---\n");
-                    for (Errores err : this.arbolGlobal.errores) {
-                        txtConsola.append(err.toString() + "\n");
-                    }
+            // 5. Mostrar Reporte de Errores en la consola de la GUI
+            if (!this.arbolGlobal.errores.isEmpty()) {
+                txtConsola.append("\n--- SE ENCONTRARON ERRORES ---\n");
+                for (Errores err : this.arbolGlobal.errores) {
+                    txtConsola.append(err.toString() + "\n");
                 }
             }
 
