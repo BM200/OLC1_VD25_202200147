@@ -1,0 +1,121 @@
+print("***\t\tCalificacion Fase 1\t\t***");
+
+
+print("----------- While -----------\n");
+
+// ---- WHILE SENCILLO ----
+var fila: int = 1;
+
+while (fila < 4) {   
+    var col: int = 1;
+
+    while (col < 4) {   
+        print("F" + fila + " C" + col);
+        col = col + 1;
+    }
+
+    fila = fila + 1;
+}
+
+
+// ---- FIGURA (while e if) piramide ----
+
+var limite2: int = 7;
+var fila2: int = 1;
+
+while (fila2 < limite2) {
+
+    var col2: int = 1;
+    var cadena2: string = "";
+
+    while (col2 < limite2) {
+
+        var usado2: int = 0;
+
+        if (col2 < fila2) {
+            cadena2 = cadena2 + "* ";
+            usado2 = 1;
+        }
+
+        if (usado2 < 1) {
+            cadena2 = cadena2 + ". ";
+        }
+
+        col2 = col2 + 1;
+    }
+
+    print(cadena2);
+    fila2 = fila2 + 1;
+}
+
+print("----------- While con if -----------\n");
+var n: int = 7;
+var i: double = -3 * n / 2;
+while (i <= n) {
+    var cadenaFigura: string = "";
+    var j: double = -3 * n / 2;
+
+    while (j <= 3 * n / 2) {
+        var absolutoi: double = i;
+        var absolutoj: double = j;
+
+        if (i < 0) {
+            absolutoi = -i;
+        }
+        if (j < 0) {
+            absolutoj = -j;
+        }
+
+        if ((absolutoi + absolutoj) <= n) {
+            cadenaFigura = cadenaFigura + "* ";
+        }
+        if ((absolutoi + absolutoj) > n) {
+            cadenaFigura = cadenaFigura + ". ";
+        }
+        j++;
+    }
+    print(cadenaFigura);
+    i++;
+}
+
+
+// break y continue
+print("----------- Sentencias de Transferencia -----------\n");
+var k: int = 0;
+while (k < 3) {
+    print("Ciclo externo k = " + k);
+
+    var l: int = 0;
+    while (l < 3) {
+
+        if (l == 1) {
+            print("  l = 1 -> continue");
+            l++;
+            continue;
+        }
+
+       
+        if (l == 2) {
+            print("  l = 2 -> break ciclo interno");
+            break;
+        }
+
+        print("  l = " + l);
+        l++;
+    }
+
+    k++;
+}
+
+print("----------- Casteos -----------\n");
+print("int a double -> "+ ((double) 100));
+print("double a int -> "+ ((int) 16.9));
+print("int a char -> "+ ((char) 98));
+print("char a int -> "+ ((int) '2' ));
+print("char a double -> "+ ((double) 'F' ));
+
+
+
+
+
+

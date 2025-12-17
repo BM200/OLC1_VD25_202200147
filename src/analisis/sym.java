@@ -9,27 +9,29 @@ package analisis;
 public class sym {
   /* terminals */
   public static final int CHAR_TYPE = 10;
+  public static final int MASMAS = 39;
   public static final int PAR2 = 16;
   public static final int DOSPUNTOS = 17;
   public static final int PAR1 = 15;
-  public static final int _menorigual = 43;
+  public static final int MENOSMENOS = 40;
+  public static final int _menorigual = 45;
   public static final int CHAR = 12;
-  public static final int EQUALS = 40;
+  public static final int EQUALS = 42;
   public static final int ENTERO = 3;
-  public static final int XOR = 49;
-  public static final int DIFERENTE = 41;
+  public static final int XOR = 51;
+  public static final int DIFERENTE = 43;
   public static final int DOUBLE = 7;
   public static final int _do = 23;
   public static final int INT = 6;
-  public static final int _mayorigual = 45;
+  public static final int _mayorigual = 47;
   public static final int _llaveizq = 30;
   public static final int _switch = 25;
-  public static final int NOT = 48;
-  public static final int AND = 46;
+  public static final int NOT = 50;
+  public static final int AND = 48;
   public static final int FINCADENA = 13;
-  public static final int IGUAL = 39;
-  public static final int OR = 47;
-  public static final int _mayorq = 44;
+  public static final int IGUAL = 41;
+  public static final int OR = 49;
+  public static final int _mayorq = 46;
   public static final int BOOL = 9;
   public static final int _else = 21;
   public static final int UMENOS = 34;
@@ -48,7 +50,7 @@ public class sym {
   public static final int _llaveder = 31;
   public static final int _default = 27;
   public static final int _while = 22;
-  public static final int _menorq = 42;
+  public static final int _menorq = 44;
   public static final int _for = 24;
   public static final int _case = 26;
   public static final int STRING = 8;
@@ -98,6 +100,8 @@ public class sym {
   "DIVISION",
   "MODULO",
   "POTENCIA",
+  "MASMAS",
+  "MENOSMENOS",
   "IGUAL",
   "EQUALS",
   "DIFERENTE",

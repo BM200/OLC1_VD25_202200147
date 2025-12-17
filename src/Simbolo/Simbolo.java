@@ -12,16 +12,20 @@ public class Simbolo {
      private Tipo tipo;
     private String id;
     private Object valor;
-
-    public Simbolo(Tipo tipo, String id) {
-        this.tipo = tipo;
-        this.id = id;
+    private int linea;
+    private int columna;
+    
+    public Simbolo(Tipo tipo, String id, Object valor) {
+        this(tipo, id, valor, 0, 0);
     }
 
-    public Simbolo(Tipo tipo, String id, Object valor) {
+    public Simbolo(Tipo tipo, String id, Object valor, int linea, int columna) {
         this.tipo = tipo;
         this.id = id;
         this.valor = valor;
+        this.linea = linea;
+        this.columna = columna;
+        
     }
 
     public Tipo getTipo() {
@@ -47,5 +51,10 @@ public class Simbolo {
     public void setValor(Object valor) {
         this.valor = valor;
     }
+    
+    public int getLinea() { return linea; }
+    
+    public int getColumna() { return columna; }
+    
     
 }

@@ -21,20 +21,29 @@ public class Reportes {
             PrintWriter write = new PrintWriter(file);
             
             write.println("<html>");
-            write.println("<head><title>Reporte de Errores</title>");
+            write.println("<head>");
+            write.println("<title>Reporte de Errores</title>");
+            // ESTA LÍNEA ARREGLA LOS CARACTERES RAROS (Tildes y Ñ)
+            write.println("<meta charset=\"UTF-8\">"); 
             write.println("<style>");
-            write.println("table { border-collapse: collapse; width: 100%; }");
-            write.println("th, td { text-align: left; padding: 8px; border: 1px solid black; }");
-            write.println("th { background-color: #f2f2f2; }");
-            write.println("h1 { text-align: center; }");
-            write.println("</style></head>");
+            write.println("body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }");
+            write.println("h1 { text-align: center; color: #333; }");
+            write.println("table { border-collapse: collapse; width: 100%; background-color: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }");
+            write.println("th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }");
+            write.println("th { background-color: #d9534f; color: white; }"); // Color rojo para errores
+            write.println("tr:hover { background-color: #f5f5f5; }");
+            write.println("</style>");
+            write.println("</head>");
             write.println("<body>");
             write.println("<h1>Reporte de Errores - JavaUSAC</h1>");
             write.println("<table>");
-            write.println("<tr><th>Tipo</th><th>Descripción</th><th>Línea</th><th>Columna</th></tr>");
+            // Encabezados según el PDF
+            write.println("<tr><th>#</th><th>Tipo</th><th>Descripción</th><th>Línea</th><th>Columna</th></tr>");
 
+            int contador = 1;
             for (Errores err : listaErrores) {
                 write.println("<tr>");
+                write.println("<td>" + contador++ + "</td>");
                 write.println("<td>" + err.getTipo() + "</td>");
                 write.println("<td>" + err.getDesc() + "</td>");
                 write.println("<td>" + err.getLinea() + "</td>");
@@ -67,13 +76,21 @@ public class Reportes {
             write.println("<body>");
             write.println("<h1>Tabla de Símbolos (Variables Globales)</h1>");
             write.println("<table>");
-            write.println("<tr><th>Identificador</th><th>Tipo</th><th>Valor Actual</th></tr>");
+            // En generarReporteSimbolos:
 
+            write.println("<tr><th>#</th><th>Identificador</th><th>Tipo</th><th>Valor</th><th>Entorno</th><th>Línea</th><th>Columna</th></tr>");
+            
+            int contador = 1;
+            
             for (Simbolo sim : listaSimbolos) {
                 write.println("<tr>");
+                write.println("<td>"+ contador++ +"</td>");
                 write.println("<td>" + sim.getId() + "</td>");
                 write.println("<td>" + sim.getTipo().getTipo() + "</td>");
                 write.println("<td>" + (sim.getValor() != null ? sim.getValor().toString() : "null") + "</td>");
+                write.println("<td>Global</td>"); // O pasas el nombre de la tabla
+                write.println("<td>" + sim.getLinea() + "</td>");
+                write.println("<td>" + sim.getColumna() + "</td>");
                 write.println("</tr>");
             }
 

@@ -29,6 +29,8 @@ import excepciones.Errores;
 //simbolos del sistema
 PAR1 = "("
 PAR2 = ")"
+MASMAS="++"
+MENOSMENOS="--"
 MAS = "+"
 MENOS = "-"
 MULT = "*"
@@ -151,6 +153,8 @@ CHAR_TYPE= "char"
 
 //Operadores Aritmeticos
 <YYINITIAL> {POT} {return new Symbol(sym.POTENCIA, yyline, yycolumn, yytext());} 
+<YYINITIAL> {MASMAS}        { return new Symbol(sym.MASMAS, yyline, yycolumn, yytext()); }
+<YYINITIAL> {MENOSMENOS}        { return new Symbol(sym.MENOSMENOS, yyline, yycolumn, yytext()); }
 <YYINITIAL> {MAS} {return new Symbol(sym.MAS, yyline, yycolumn, yytext());}
 <YYINITIAL> {MENOS} {return new Symbol(sym.MENOS, yyline, yycolumn, yytext());}
 <YYINITIAL> {MULT}  {return new Symbol(sym.MULTIPLICACION, yyline, yycolumn, yytext());}
