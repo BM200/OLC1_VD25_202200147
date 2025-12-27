@@ -39,6 +39,7 @@ public class Reportes {
             write.println("<table>");
             // Encabezados según el PDF
             write.println("<tr><th>#</th><th>Tipo</th><th>Descripción</th><th>Línea</th><th>Columna</th></tr>");
+            
 
             int contador = 1;
             for (Errores err : listaErrores) {
@@ -61,34 +62,39 @@ public class Reportes {
     }
 
     public static void generarReporteSimbolos(LinkedList<Simbolo> listaSimbolos) {
-        try {
+            try {
             FileWriter file = new FileWriter("ReporteTablaSimbolos.html");
             PrintWriter write = new PrintWriter(file);
             
             write.println("<html>");
-            write.println("<head><title>Tabla de Símbolos</title>");
+            write.println("<head>");
+            write.println("<title>Tabla de Símbolos</title>");
+            write.println("<meta charset=\"UTF-8\">"); // <--- ARREGLA LAS TILDES
             write.println("<style>");
-            write.println("table { border-collapse: collapse; width: 100%; }");
-            write.println("th, td { text-align: left; padding: 8px; border: 1px solid black; }");
+            write.println("body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }");
+            write.println("h1 { text-align: center; color: #333; }");
+            write.println("table { border-collapse: collapse; width: 100%; background-color: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }");
+            write.println("th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }");
             write.println("th { background-color: #4CAF50; color: white; }");
-            write.println("h1 { text-align: center; }");
-            write.println("</style></head>");
+            write.println("tr:hover { background-color: #f5f5f5; }");
+            write.println("</style>");
+            write.println("</head>");
             write.println("<body>");
             write.println("<h1>Tabla de Símbolos (Variables Globales)</h1>");
             write.println("<table>");
-            // En generarReporteSimbolos:
+            
+            // 7 ENCABEZADOS
+            write.println("<tr><th>#</th><th>Identificador</th><th>Tipo</th><th>Tipo Dato</th><th>Entorno</th><th>Valor</th><th>Línea</th><th>Columna</th></tr>");
 
-            write.println("<tr><th>#</th><th>Identificador</th><th>Tipo</th><th>Valor</th><th>Entorno</th><th>Línea</th><th>Columna</th></tr>");
-            
             int contador = 1;
-            
             for (Simbolo sim : listaSimbolos) {
                 write.println("<tr>");
-                write.println("<td>"+ contador++ +"</td>");
+                write.println("<td>" + contador++ + "</td>");
                 write.println("<td>" + sim.getId() + "</td>");
+                write.println("<td>Variable</td>"); 
                 write.println("<td>" + sim.getTipo().getTipo() + "</td>");
+                write.println("<td>" + sim.getEntorno() + "</td>"); // <--- SOLO UNA VEZ
                 write.println("<td>" + (sim.getValor() != null ? sim.getValor().toString() : "null") + "</td>");
-                write.println("<td>Global</td>"); // O pasas el nombre de la tabla
                 write.println("<td>" + sim.getLinea() + "</td>");
                 write.println("<td>" + sim.getColumna() + "</td>");
                 write.println("</tr>");

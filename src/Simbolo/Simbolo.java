@@ -9,15 +9,13 @@ package Simbolo;
  * @author balam
  */
 public class Simbolo {
-     private Tipo tipo;
+    private Tipo tipo;
     private String id;
     private Object valor;
+    private String entorno;
     private int linea;
     private int columna;
     
-    public Simbolo(Tipo tipo, String id, Object valor) {
-        this(tipo, id, valor, 0, 0);
-    }
 
     public Simbolo(Tipo tipo, String id, Object valor, int linea, int columna) {
         this.tipo = tipo;
@@ -25,8 +23,17 @@ public class Simbolo {
         this.valor = valor;
         this.linea = linea;
         this.columna = columna;
+        this.entorno = "Global";
         
     }
+    //--Getter y Setter nuevo
+    public String getEntorno() { return (String) entorno; }
+    
+    public void setEntorno(String entorno) { this.entorno = entorno; }
+    
+   
+    
+    
 
     public Tipo getTipo() {
         return tipo;

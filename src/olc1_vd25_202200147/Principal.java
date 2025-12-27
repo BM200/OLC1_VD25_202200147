@@ -10,6 +10,8 @@ import Simbolo.Arbol;
 import Simbolo.tablaSimbolos;
 import abstracto.Instruccion;
 import excepciones.Errores;
+import analisis.Reportes; // Importar la clase de reportes
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -17,8 +19,6 @@ import java.io.StringReader;
 import java.util.LinkedList;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import analisis.Reportes;
 
 /**
  *
@@ -33,6 +33,12 @@ public class Principal extends javax.swing.JFrame {
      */
     public Principal() {
         initComponents();
+         // CORRECCIÓN VISUAL: Fuente monoespaciada para que los dibujos ASCII se alineen
+        txtConsola.setFont(new java.awt.Font("Monospaced", 0, 14)); 
+        
+        // Inicializar en null para evitar errores antes de ejecutar
+        this.arbolGlobal = null; 
+        this.tablaGlobal = null;
     }
 
     /**
@@ -140,49 +146,51 @@ public class Principal extends javax.swing.JFrame {
         String entrada = txtContenidoEntrada.getText();
 
         try {
+            // 1. Crear analizadores
             scanner s = new scanner(new StringReader(entrada));
             parser p = new parser(s);
 
-            // Ejecutar análisis (Ahora con recuperación de errores gracias al CUP modificado)
+            // 2. Ejecutar análisis (Con recuperación de errores en CUP)
             var resultado = p.parse();
 
-            // 1. Inicializar Arbol y Tabla Globales
-            LinkedList<Instruccion> ast = (LinkedList<Instruccion>) resultado.value;
+            // 3. Inicializar Estructuras Globales
+            // (Si el parser devuelve null, usamos lista vacía)
+            LinkedList<Instruccion> ast = (resultado.value != null) ? 
+                    (LinkedList<Instruccion>) resultado.value : new LinkedList<>();
+            
             this.tablaGlobal = new tablaSimbolos(null);
             this.tablaGlobal.setNombre("GLOBAL");
 
-            // Si el parser devolvió null (fallo total), inicializamos lista vacía
-            if (ast == null) ast = new LinkedList<>();
-
+            // Creamos el árbol con el AST obtenido
             this.arbolGlobal = new Arbol(ast);
 
-            // 2. Agregar errores de compilación detectados (Léxicos/Sintácticos) al reporte
+            // 4. Recolectar errores de compilación (Léxicos y Sintácticos)
             this.arbolGlobal.errores.addAll(s.listaErrores);
             this.arbolGlobal.errores.addAll(p.listaErrores);
 
-            // 3. EJECUTAR EL AST (Incluso si hubo errores sintácticos previos)
-            //    Esto permitirá que se guarden las variables válidas antes del error.
-
-            txtConsola.setText(""); // Limpiar consola
+            // 5. EJECUTAR EL AST (Interpretación)
+            // Limpiamos consola antes de empezar
+            txtConsola.setText(""); 
 
             for (Instruccion ins : ast) {
-                // IMPORTANTE: Como agregamos "error" en el CUP que retorna null,
-                // debemos validar que la instrucción no sea null antes de ejecutarla.
+                // IMPORTANTE: Validar null por si hubo recuperación de errores en CUP
                 if (ins == null) continue; 
 
                 var res = ins.interpretar(this.arbolGlobal, this.tablaGlobal);
 
+                // Si hay error semántico, guardarlo
                 if (res instanceof Errores) {
                     this.arbolGlobal.errores.add((Errores) res);
                 }
             }
 
-            // 4. Mostrar Salidas
+            // 6. Mostrar Salidas en la Consola GUI
             txtConsola.setText(this.arbolGlobal.getConsolas());
 
-            // 5. Mostrar Reporte de Errores en la consola de la GUI
+            // 7. Mostrar Resumen de Errores en la Consola GUI (Opcional, pero útil)
             if (!this.arbolGlobal.errores.isEmpty()) {
                 txtConsola.append("\n--- SE ENCONTRARON ERRORES ---\n");
+                txtConsola.append("Genere los reportes para ver el detalle.\n");
                 for (Errores err : this.arbolGlobal.errores) {
                     txtConsola.append(err.toString() + "\n");
                 }
@@ -199,18 +207,15 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_txtrutaActionPerformed
 
     private void btnAbrirArchivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirArchivoActionPerformed
-        // TODO add your handling code here:
-        // Configurar el selector de archivos
-        JFileChooser selector = new JFileChooser();
+         JFileChooser selector = new JFileChooser();
         
+        // Filtro para aceptar .ju y .jc
         selector.setFileFilter(new FileNameExtensionFilter("Archivos JavaUSAC (.ju, .jc)", "ju", "jc"));
 
         int resultado = selector.showOpenDialog(this);
 
         if (resultado == JFileChooser.APPROVE_OPTION) {
             File archivoSeleccionado = selector.getSelectedFile();
-
-            // Mostrar la ruta en el campo de texto
             txtruta.setText(archivoSeleccionado.getAbsolutePath());
 
             try (BufferedReader reader = new BufferedReader(new FileReader(archivoSeleccionado))) {
@@ -221,10 +226,7 @@ public class Principal extends javax.swing.JFrame {
                     contenido.append(linea).append("\n");
                 }
 
-                // Mostrar el contenido en el área de texto superior (Editor)
                 txtContenidoEntrada.setText(contenido.toString());
-
-                // Limpiar la consola anterior
                 txtConsola.setText(""); 
 
             } catch (Exception e) {
@@ -234,17 +236,21 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAbrirArchivoActionPerformed
 
     private void btnGenerarReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarReportesActionPerformed
-                     // TODO add your handling code here:
-       if (this.arbolGlobal != null && this.tablaGlobal != null) {
-            // 1. Reporte de Errores (Semánticos + los que guardaste de sintaxis si los pasaste)
+        // Validamos que se haya ejecutado algo primero
+       if (this.arbolGlobal != null) {
+            
+            // 1. Reporte de Errores (Léxicos, Sintácticos y Semánticos)
             Reportes.generarReporteErrores(this.arbolGlobal.errores);
 
-            // 2. Reporte de Tabla de Símbolos (Variables Globales)
-            Reportes.generarReporteSimbolos(this.tablaGlobal.getVariables());
+            // 2. Reporte de Tabla de Símbolos 
+            // Usamos 'simbolosReporte' (la lista acumulada en Arbol) para ver todo el historial
+            // Si no implementaste esa lista, usa 'this.tablaGlobal.getVariables()'
+            Reportes.generarReporteSimbolos(this.arbolGlobal.simbolosReporte);
 
             javax.swing.JOptionPane.showMessageDialog(this, "¡Reportes HTML generados en la carpeta del proyecto!");
+            
         } else {
-            javax.swing.JOptionPane.showMessageDialog(this, "Primero debes ejecutar el código.");
+            javax.swing.JOptionPane.showMessageDialog(this, "Primero debes ejecutar el código para generar reportes.");
         }
     }//GEN-LAST:event_btnGenerarReportesActionPerformed
 
@@ -252,11 +258,6 @@ public class Principal extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -264,17 +265,9 @@ public class Principal extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (Exception ex) {
             java.util.logging.Logger.getLogger(Principal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

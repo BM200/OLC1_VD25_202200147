@@ -14,15 +14,20 @@ import excepciones.Errores;
  */
 public class Arbol {
     private LinkedList<Instruccion> instrucciones;
-    private tablaSimbolos tablaGlobal;
-    public LinkedList<Errores> errores;
     private String consolas;
+    public LinkedList<Errores> errores;
+    
+    // --- NUEVA LISTA PARA EL REPORTE ---
+    public LinkedList<Simbolo> simbolosReporte;
+    // -----------------------------------
 
     public Arbol(LinkedList<Instruccion> instrucciones) {
         this.instrucciones = instrucciones;
-        this.tablaGlobal = new tablaSimbolos();
-        this.errores = new LinkedList<>();
         this.consolas = "";
+        this.errores = new LinkedList<>();
+        
+        // Inicializamos la lista
+        this.simbolosReporte = new LinkedList<>();
 
     }
 
@@ -34,14 +39,7 @@ public class Arbol {
         this.instrucciones = instrucciones;
     }
 
-    public tablaSimbolos getTablaGlobal() {
-        return tablaGlobal;
-    }
-
-    public void setTablaGlobal(tablaSimbolos tablaGlobal) {
-        this.tablaGlobal = tablaGlobal;
-    }
-
+  
     public LinkedList<Errores> getErrores() {
         return errores;
     }

@@ -12,7 +12,7 @@ import java.util.LinkedList;
  */
 public class tablaSimbolos {
     
-        private tablaSimbolos tablaAnterior;
+    private tablaSimbolos tablaAnterior;
     private HashMap<String, Object> tablaActual;
     private String nombre;
     
@@ -52,8 +52,13 @@ public class tablaSimbolos {
     }
     
     public boolean setVariables(Simbolo simbolo){
+        
         Simbolo busqueda = (Simbolo) this.tablaActual.get(simbolo.getId().toLowerCase());
+        
         if (busqueda == null){
+            
+            String nombreEntorno = (this.nombre == null || this.nombre.isEmpty()) ? "Global" : this.nombre;
+            simbolo.setEntorno(nombreEntorno);
             this.tablaActual.put(simbolo.getId().toLowerCase(), simbolo);
             return true;
         }

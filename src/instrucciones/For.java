@@ -38,7 +38,7 @@ public class For extends Instruccion {
         // 1. Crear un entorno propio para la variable del For (ej: 'i')
         //    Este entorno será padre del entorno de las instrucciones internas.
         var tablaHeader = new tablaSimbolos(tabla);
-        tablaHeader.setNombre("FOR_HEADER"); // Opcional, para debug
+        tablaHeader.setNombre("For"); // Opcional, para debug
 
         // 2. Ejecutar la declaración/asignación inicial (SOLO UNA VEZ)
         //    Ej: var i:int = 0;

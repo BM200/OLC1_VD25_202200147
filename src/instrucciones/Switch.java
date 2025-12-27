@@ -27,65 +27,71 @@ public class Switch extends Instruccion {
 
     @Override
     public Object interpretar(Arbol arbol, tablaSimbolos tabla) {
-        // 1. Calcular el valor de la condición principal del Switch
+        // 1. Obtener el valor de la condición principal (ej: opcion)
         Object valorSwitch = this.expresion.interpretar(arbol, tabla);
         
         if (valorSwitch instanceof Errores) {
             return valorSwitch;
         }
 
-        boolean casoEjecutado = false;
+        // Bandera para saber si ya encontramos el caso correcto.
+        // Una vez se pone en 'true', ejecutará TODAS las instrucciones siguientes (Fall-through)
+        // hasta que encuentre un BREAK.
+        boolean isMatch = false; 
 
         // 2. Recorrer todos los CASES
         for (Instruccion inst : casos) {
-            if (!(inst instanceof Case)) continue; // Validación de seguridad
+            if (!(inst instanceof Case)) continue;
             
             Case casoActual = (Case) inst;
             
-            // Calculamos el valor de la etiqueta del case (ej: case 1:)
-            Object valorCase = casoActual.valor.interpretar(arbol, tabla);
-            
-            if (valorCase instanceof Errores) {
-                return valorCase;
+            // Si AÚN NO hemos encontrado coincidencia, evaluamos la condición del case
+            if (!isMatch) {
+                Object valorCase = casoActual.valor.interpretar(arbol, tabla);
+                if (valorCase instanceof Errores) return valorCase;
+
+                if (valorSwitch.equals(valorCase)) {
+                    isMatch = true; // ¡Encontramos la entrada! Activamos la ejecución.
+                }
             }
 
-            // Comparar: valorSwitch == valorCase
-            // Usamos .equals para comparar objetos (Enteros, Strings, etc.)
-            if (valorSwitch.equals(valorCase)) {
+            // Si isMatch es TRUE (ya sea porque acabamos de coincidir O porque venimos en cascada del anterior)
+            if (isMatch) {
                 
-                // --- EJECUTAR EL CASO ---
-                casoEjecutado = true;
-                
-                // Creamos un entorno nuevo para el case
+                // Entorno para el caso
                 tablaSimbolos tablaCase = new tablaSimbolos(tabla);
                 tablaCase.setNombre("SWITCH_CASE");
 
                 for (Instruccion i : casoActual.instrucciones) {
                     Object res = i.interpretar(arbol, tablaCase);
 
-                    // Manejo de Errores
+                    // Validar Errores
                     if (res instanceof Errores) return res;
 
-                    // Manejo de BREAK: Si encontramos un break, terminamos el Switch completo
+                    // --- MANEJO CRÍTICO DEL BREAK ---
+                    // Si encontramos un Break, RETORNAMOS NULL inmediatamente.
+                    // Esto detiene el Switch y evita que siga cayendo a los siguientes casos.
                     if (res instanceof Break) {
-                        return null; // Salimos del Switch
+                        return null; 
                     }
                     
-                    // Manejo de CONTINUE: Si hay un continue, debe propagarse hacia afuera (al ciclo que envuelve el switch)
+                    // Propagar Continue si estamos dentro de un ciclo
                     if (res instanceof Continue) {
                         return res;
                     }
-                    
-                    // (Nota: Si tuvieras RETURN, también deberías propagarlo aquí)
                 }
-                
-                // Si ejecutamos un caso exitosamente, terminamos (Comportamiento sin fall-through simple)
-                return null; 
             }
         }
 
-        // 3. Si ningún case se ejecutó, ejecutamos el DEFAULT
-        if (!casoEjecutado && bloqueDefault != null) {
+        // 3. Ejecutar DEFAULT
+        // Se ejecuta si:
+        // A) Ningún caso coincidió (isMatch nunca se hizo true)
+        // B) Hubo coincidencia previa pero NO hubo break (Fall-through hasta el default)
+        if (bloqueDefault != null) {
+            // Si venimos en cascada (isMatch=true) o si nadie coincidió (isMatch=false),
+            // el default siempre se ejecuta si llegamos hasta aquí sin un break previo.
+            // (Nota: si isMatch es false, significa que nadie coincidió, así que toca default).
+            
             tablaSimbolos tablaDefault = new tablaSimbolos(tabla);
             tablaDefault.setNombre("SWITCH_DEFAULT");
 
@@ -93,12 +99,11 @@ public class Switch extends Instruccion {
                 Object res = i.interpretar(arbol, tablaDefault);
                 
                 if (res instanceof Errores) return res;
-                if (res instanceof Break) return null;
+                if (res instanceof Break) return null; // Break en default termina el switch
                 if (res instanceof Continue) return res;
             }
         }
 
         return null;
     }
-    
 }

@@ -75,8 +75,10 @@ public class Declaracion extends Instruccion {
         boolean creacion = tabla.setVariables(s);
         
         if(!creacion){
-            return new Errores("semantico", "Variable '" + this.identificador + "' ya existente en este entorno", this.linea, this.col);
+            return new Errores("semantico", "Variable ya existente", this.linea, this.col);
         }
+        arbol.simbolosReporte.add(s);
+
         
         return null;
     }

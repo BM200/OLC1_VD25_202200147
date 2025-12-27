@@ -47,6 +47,8 @@ public class If extends Instruccion {
     public Object interpretar(Arbol arbol, tablaSimbolos tabla){
         var condicion = this.expresion.interpretar(arbol, tabla);
         
+        
+        
         if (condicion instanceof Errores){
             return condicion;
         }
@@ -61,7 +63,7 @@ public class If extends Instruccion {
         // --- BLOQUE IF ---
         if(ejecutarIf){
             var nuevaTabla = new tablaSimbolos(tabla);
-            nuevaTabla.setNombre("IF_SCOPE");
+            nuevaTabla.setNombre("If");
             
             for (var inst: instrucciones){
                 var res = inst.interpretar(arbol, nuevaTabla);
@@ -98,7 +100,7 @@ public class If extends Instruccion {
         // --- BLOQUE ELSE ---
         if (instruccioneselse != null){
             var nuevaTabla = new tablaSimbolos(tabla);
-            nuevaTabla.setNombre("ELSE_SCOPE");
+            nuevaTabla.setNombre("Else");
             
             for(var instElse: instruccioneselse){
                 var res = instElse.interpretar(arbol, nuevaTabla);

@@ -48,7 +48,7 @@ public class While extends Instruccion{
 
             // 4. Crear el entorno para esta iteración
             tablaSimbolos tablaWhile = new tablaSimbolos(tabla);
-            tablaWhile.setNombre("WHILE_SCOPE");
+            tablaWhile.setNombre("While");
 
             // 5. Ejecutar instrucciones
             for (Instruccion ins : this.instrucciones) {
