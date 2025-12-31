@@ -4,19 +4,25 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/expresiones/Relacionales.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Append.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/DeclaracionArreglo.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/Simbolo/Arbol.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/Simbolo/tablaSimbolos.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Start.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/expresiones/AccesoVar.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/analisis/lexico.jflex</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/If.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Metodo.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/Simbolo/tipoDato.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/expresiones/OperadoresAritmeticos.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/excepciones/Errores.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/expresiones/AccesoArreglo.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/abstracto/Instruccion.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/AsignacionVar.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/analisis/sym.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Continue.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Print.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/ModificacionArreglo.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/For.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Case.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/olc1_vd25_202200147/Principal.java</file>
@@ -24,8 +30,10 @@
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/analisis/Reportes.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/expresiones/Aritmeticas.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/Simbolo/Tipo.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Llamada.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/Simbolo/Simbolo.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/expresiones/Logicas.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Remove.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/analisis/sintactico.cup</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/DoWhile.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/While.java</file>
@@ -34,10 +42,14 @@
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Switch.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/expresiones/Casteo.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Declaracion.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Return.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/analisis/scanner.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/analisis/parser.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/olc1_vd25_202200147/OLC1_VD25_202200147.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Break.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/expresiones/OperadoresRelacionales.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/DeclaracionLista.java</file>
+            <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/instrucciones/Funcion.java</file>
             <file>file:/C:/Users/balam/Dropbox/PC/Documents/NetBeansProjects/OLC1_VD25_202200147/src/expresiones/Nativo.java</file>
         </group>
     </open-files>

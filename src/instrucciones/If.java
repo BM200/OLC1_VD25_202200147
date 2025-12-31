@@ -63,34 +63,29 @@ public class If extends Instruccion {
         // --- BLOQUE IF ---
         if(ejecutarIf){
             var nuevaTabla = new tablaSimbolos(tabla);
-            nuevaTabla.setNombre("If");
+            nuevaTabla.setNombre("IF");
             
             for (var inst: instrucciones){
                 var res = inst.interpretar(arbol, nuevaTabla);
                 
-                // ERROR CRÍTICO CORREGIDO:
-                // Si encontramos un Error, Break o Continue, debemos retornarlo inmediatamente
-                // para que el ciclo padre (While/For) se entere.
-                if (res instanceof Errores || res instanceof Break || res instanceof Continue){
+                // CORRECCIÓN: AGREGAR "|| res instanceof Return"
+                if (res instanceof Errores || res instanceof Break || res instanceof Continue || res instanceof Return){
                     return res;
                 }
             }
-            return true; // Retornamos true para indicar que SÍ se ejecutó un bloque (para los else-if)
+            return true; 
         }
 
         // --- BLOQUE ELSE-IF ---
         if (instruccioneselseif != null){
             for (Instruccion elseif: instruccioneselseif){
-                // Interpretamos el If secundario
                 var res  = elseif.interpretar(arbol, tabla);
                 
-                // Si el ElseIf retornó un Break/Continue/Error, lo subimos
-                if (res instanceof Errores || res instanceof Break || res instanceof Continue){
+                // CORRECCIÓN: AGREGAR "|| res instanceof Return"
+                if (res instanceof Errores || res instanceof Break || res instanceof Continue || res instanceof Return){
                     return res;
                 }
                 
-                // Si retornó true (Booleano), significa que ese ElseIf se ejecutó correctamente.
-                // Por lo tanto, ya no evaluamos los siguientes ni el Else.
                 if (res instanceof Boolean && (Boolean) res){
                     return true;
                 }
@@ -100,13 +95,13 @@ public class If extends Instruccion {
         // --- BLOQUE ELSE ---
         if (instruccioneselse != null){
             var nuevaTabla = new tablaSimbolos(tabla);
-            nuevaTabla.setNombre("Else");
+            nuevaTabla.setNombre("ELSE");
             
             for(var instElse: instruccioneselse){
                 var res = instElse.interpretar(arbol, nuevaTabla);
                 
-                // ERROR CRÍTICO CORREGIDO AQUÍ TAMBIÉN:
-                if (res instanceof Errores || res instanceof Break || res instanceof Continue){
+                // CORRECCIÓN: AGREGAR "|| res instanceof Return"
+                if (res instanceof Errores || res instanceof Break || res instanceof Continue || res instanceof Return){
                     return res;
                 }
             }

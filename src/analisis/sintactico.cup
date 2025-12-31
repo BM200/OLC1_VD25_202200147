@@ -1,7 +1,9 @@
 package analisis;
+
 // Importaciones
 import java_cup.runtime.Symbol;
 import java.util.LinkedList;
+import java.util.HashMap;
 import abstracto.Instruccion;
 import Simbolo.Tipo;
 import Simbolo.tipoDato;
@@ -20,9 +22,19 @@ import instrucciones.Continue;
 import instrucciones.Switch;
 import instrucciones.Case;
 import instrucciones.Incremento; 
-import expresiones.Casteo;       
+import instrucciones.DeclaracionArreglo;
+import instrucciones.ModificacionArreglo;
+import instrucciones.DeclaracionLista;
+import instrucciones.Append;
+import instrucciones.Remove;
+import instrucciones.Funcion;
+import instrucciones.Metodo;
+import instrucciones.Llamada;
+import instrucciones.Return;
+import instrucciones.Start; // Asegúrate de tener esta clase o usar Llamada
 
 // Expresiones
+import expresiones.Casteo;
 import expresiones.Nativo;
 import expresiones.OperadoresAritmeticos;
 import expresiones.Aritmeticas;
@@ -31,22 +43,30 @@ import expresiones.Relacionales;
 import expresiones.OperadoresLogicos;
 import expresiones.Logicas;
 import expresiones.AccesoVar;
+import expresiones.AccesoArreglo;
+import expresiones.FuncionesNativas;
+import expresiones.Find;
+import Simbolo.TipoNativa;
+
+import expresiones.ExpresionArreglo; 
 
 parser code
 {:
-        public LinkedList<Errores> listaErrores = new LinkedList<>();
-        scanner s;
-        parser(scanner s){this.s = s;};
-        public void syntax_error(Symbol s){
-        listaErrores.add(new Errores("SINTACTICO", "No se esperaba el componente " + s.value, s.left, s.right));
-        System.out.println("Error sintactico en la linea " + (s.left) + "y columna " + (s.right) + ". No se esperaba el siguiente componente: " + (s.value));
-        }
-        public void unrecovered_syntax_error(Symbol s){
-             listaErrores.add(new Errores("SINTACTICO", "No se esperaba el componente " + s.value, s.left, s.right));
-            System.out.println("Error sintactico no recuperable en la linea " + (s.left) + " y columna " + (s.right) + ". No se esperaba el siguiente componente: " + (s.value));
-        }
-        
+    public LinkedList<Errores> listaErrores = new LinkedList<>();
+    scanner s;
+    parser(scanner s){this.s = s;}
 
+    public void syntax_error(Symbol s){
+        String descripcion = "No se esperaba el componente '" + s.value + "'";
+        listaErrores.add(new Errores("SINTACTICO", descripcion, s.left, s.right));
+        System.out.println("Error sintactico en linea " + s.left + " Columna " + s.right + ". " + descripcion);
+    }
+
+    public void unrecovered_syntax_error(Symbol s){
+        String descripcion = "Error fatal. No se esperaba el componente '" + s.value + "'";
+        listaErrores.add(new Errores("SINTACTICO FATAL", descripcion, s.left, s.right));
+        System.out.println("Error sintactico irrecuperable en linea " + s.left + " Columna " + s.right + ". " + descripcion);
+    }
 :}
 
 action code
@@ -55,13 +75,20 @@ action code
 
 // --- TERMINALES ---
 terminal String CADENA, ENTERO, DECIMAL, ID;
-terminal String INT, DOUBLE, STRING, BOOL, CHAR_TYPE, VAR; // Tipos
+terminal String INT, DOUBLE, STRING, BOOL, CHAR_TYPE, VAR; 
 terminal Character CHAR;
 terminal String FINCADENA, PRINT, PAR1, PAR2, DOSPUNTOS;
 terminal String TRUE, FALSE;
 terminal String _if, _else, _while, _do, _for, _switch, _case, _default;
 terminal String _break, _continue;
 terminal String _llaveizq, _llaveder;
+
+// Terminales Fase 2
+terminal String CORIZQ, CORDER, COMA;
+terminal String LIST, NEW; 
+terminal String PUNTO, APPEND, REMOVE;
+terminal String VOID, RETURN, START; 
+terminal String LENGTH, ROUND, TOSTRING, FIND;
 
 // Operadores
 terminal String MAS, MENOS, UMENOS, MULTIPLICACION, DIVISION, MODULO, POTENCIA;
@@ -83,7 +110,18 @@ nonterminal Instruccion FOR, ACTUALIZAR_FOR, ASIGNACION_FOR;
 nonterminal Instruccion SWITCH_STM, CASE_STM;
 nonterminal LinkedList<Instruccion> CASES_LIST, DEFAULT_STM;
 
-// --- PRECEDENCIA (De menos a más importante) ---
+// No Terminales Fase 2
+nonterminal Instruccion DECLARACION_ARREGLO;
+nonterminal LinkedList<Instruccion> LISTA_VALORES;
+nonterminal Instruccion ASIGNACION_ARREGLO;
+nonterminal Instruccion DECLARACION_LISTA;
+
+nonterminal Instruccion FUNCION, METODO, LLAMADA, SENTENCIA_RETURN, START_STM;
+nonterminal LinkedList<HashMap<String, Object>> LISTA_PARAMETROS;
+nonterminal HashMap<String, Object> PARAMETRO;
+nonterminal LinkedList<Instruccion> LISTA_EXPRESIONES;
+
+// --- PRECEDENCIA ---
 precedence left OR;
 precedence left AND;
 precedence left XOR;
@@ -100,25 +138,112 @@ INICIO ::= INSTRUCCIONES:a   {: RESULT = a; :}
 ;
 
 INSTRUCCIONES ::= INSTRUCCIONES:a INSTRUCCION:b {: RESULT = a; RESULT.add(b); :}
-                | INSTRUCCION:a                {: RESULT = new LinkedList<>(); RESULT.add(a); :}
+                | INSTRUCCION:a                 {: RESULT = new LinkedList<>(); RESULT.add(a); :}
 ;
-INSTRUCCION ::= PRINT PAR1 EXPRESION:a PAR2 FINCADENA {: RESULT =  new Print(a, aleft, aright);:}
-                | DECLARACION:a   {: RESULT = a;  :}
-                | ASIGNACION:a    {: RESULT = a; :}
-                | SIF:a            {:RESULT = a; :}
-                | WHILE:a           {:RESULT = a; :}
-                | DO_WHILE:a           {:RESULT = a; :}
-                | BREAK:a          {:RESULT = a; :}
-                | FOR:a             {: RESULT = a; :}
-                | SWITCH_STM:a           {:RESULT = a; :}
-                | CONTINUE:a           {:RESULT = a; :}
-                | ID:a MASMAS FINCADENA     {: RESULT = new Incremento(a, true, aleft, aright); :}
-                | ID:a MENOSMENOS FINCADENA {: RESULT = new Incremento(a, false, aleft, aright); :}
-                | error FINCADENA {: RESULT = null; :}
-                | error {: RESULT = null;:}
-;
-// --- SENTENCIAS DE CONTROL ---
 
+INSTRUCCION ::= PRINT PAR1 EXPRESION:a PAR2 FINCADENA {: RESULT = new Print(a, aleft, aright); :}
+              | DECLARACION:a   {: RESULT = a; :}
+              | DECLARACION_ARREGLO:a {: RESULT = a; :}
+              | DECLARACION_LISTA:a {: RESULT = a; :}
+              | ID:a PUNTO APPEND PAR1 EXPRESION:e PAR2 FINCADENA {: RESULT = new Append(a, e, aleft, aright); :}
+              | ASIGNACION:a    {: RESULT = a; :}
+              | ASIGNACION_ARREGLO:a {: RESULT = a; :} 
+              | SIF:a           {: RESULT = a; :}
+              | WHILE:a         {: RESULT = a; :}
+              | DO_WHILE:a      {: RESULT = a; :}
+              | FOR:a           {: RESULT = a; :}
+              | SWITCH_STM:a    {: RESULT = a; :}
+              | BREAK:a         {: RESULT = a; :}
+              | CONTINUE:a      {: RESULT = a; :}
+              
+              | FUNCION:a       {: RESULT = a; :}
+              | METODO:a        {: RESULT = a; :}
+              | LLAMADA:a FINCADENA {: RESULT = a; :}
+              | SENTENCIA_RETURN:a {: RESULT = a; :}
+              | START_STM:a     {: RESULT = a; :}
+              
+              | ID:a MASMAS FINCADENA     {: RESULT = new Incremento(a, true, aleft, aright); :}
+              | ID:a MENOSMENOS FINCADENA {: RESULT = new Incremento(a, false, aleft, aright); :}
+              
+              | error FINCADENA {: RESULT = null; :}
+              | error {: RESULT = null; :}
+;
+
+// --- ESTRUCTURAS DE CONTROL FASE 2 ---
+
+// Funciones
+FUNCION ::= TIPOS:t ID:id PAR1 LISTA_PARAMETROS:p PAR2 _llaveizq INSTRUCCIONES:i _llaveder
+            {: RESULT = new Funcion(t, id, p, i, idleft, idright); :}
+          | TIPOS:t ID:id PAR1 PAR2 _llaveizq INSTRUCCIONES:i _llaveder
+            {: RESULT = new Funcion(t, id, new LinkedList<>(), i, idleft, idright); :}
+;
+
+// Metodos
+METODO ::= VOID ID:id PAR1 LISTA_PARAMETROS:p PAR2 _llaveizq INSTRUCCIONES:i _llaveder
+           {: RESULT = new Metodo(id, p, i, new Tipo(tipoDato.VOID), idleft, idright); :}
+         | VOID ID:id PAR1 PAR2 _llaveizq INSTRUCCIONES:i _llaveder
+           {: RESULT = new Metodo(id, new LinkedList<>(), i, new Tipo(tipoDato.VOID), idleft, idright); :}
+;
+
+LISTA_PARAMETROS ::= LISTA_PARAMETROS:l COMA PARAMETRO:p {: l.add(p); RESULT = l; :}
+                   | PARAMETRO:p {: LinkedList<HashMap<String, Object>> l = new LinkedList<>(); l.add(p); RESULT = l; :}
+;
+
+PARAMETRO ::= TIPOS:t ID:id
+              {: 
+                 HashMap<String, Object> param = new HashMap<>();
+                 param.put("tipo", t);
+                 param.put("id", id);
+                 RESULT = param; 
+              :}
+;
+
+// Llamadas
+LLAMADA ::= ID:id PAR1 LISTA_EXPRESIONES:e PAR2 {: RESULT = new Llamada(id, e, idleft, idright); :}
+          | ID:id PAR1 PAR2 {: RESULT = new Llamada(id, new LinkedList<>(), idleft, idright); :}
+;
+
+LISTA_EXPRESIONES ::= LISTA_EXPRESIONES:l COMA EXPRESION:e {: l.add(e); RESULT = l; :}
+                    | EXPRESION:e {: LinkedList<Instruccion> l = new LinkedList<>(); l.add(e); RESULT = l; :}
+;
+
+// Return
+SENTENCIA_RETURN ::= RETURN:r EXPRESION:e FINCADENA {: RESULT = new Return(e, rleft, rright); :}
+                   | RETURN:r FINCADENA             {: RESULT = new Return(rleft, rright); :}
+;
+
+// Start
+START_STM ::= START:s ID:id PAR1 LISTA_EXPRESIONES:e PAR2 FINCADENA
+              {: RESULT = new Start(id, e, sleft, sright); :}
+            | START:s ID:id PAR1 PAR2 FINCADENA
+              {: RESULT = new Start(id, new LinkedList<>(), sleft, sright); :}
+;
+
+// Declaraciones
+DECLARACION ::= VAR ID:id DOSPUNTOS TIPOS:a IGUAL EXPRESION:c FINCADENA {: RESULT = new Declaracion(id, c, a, idleft, idright + 1); :}
+              | VAR ID:id DOSPUNTOS TIPOS:a FINCADENA {: RESULT = new Declaracion(id, null, a, idleft, idright + 1); :}
+;   
+
+DECLARACION_ARREGLO ::= VAR:a ID:id DOSPUNTOS TIPOS:tipo CORIZQ CORDER IGUAL CORIZQ LISTA_VALORES:lista CORDER FINCADENA
+                        {: RESULT = new DeclaracionArreglo(id, tipo, 1, lista, idleft, idright + 1); :}
+                      | VAR:a ID:id DOSPUNTOS TIPOS:tipo CORIZQ CORDER CORIZQ CORDER IGUAL CORIZQ LISTA_VALORES:lista CORDER FINCADENA
+                        {: RESULT = new DeclaracionArreglo(id, tipo, 2, lista, idleft, idright + 1); :}
+;
+
+DECLARACION_LISTA ::= LIST:a _menorq TIPOS:t _mayorq ID:id IGUAL NEW LIST PAR1 PAR2 FINCADENA
+                      {: RESULT = new DeclaracionLista(id, t, idleft, idright + 1); :}
+;
+
+ASIGNACION ::= ID:a IGUAL EXPRESION:b FINCADENA {: RESULT = new AsignacionVar(a, b, aleft, aright); :}
+;
+
+ASIGNACION_ARREGLO ::= ID:a CORIZQ EXPRESION:idx CORDER IGUAL EXPRESION:val FINCADENA
+                       {: RESULT = new ModificacionArreglo(a, idx, val, aleft, aright); :}
+                     | ID:a CORIZQ EXPRESION:idx1 CORDER CORIZQ EXPRESION:idx2 CORDER IGUAL EXPRESION:val FINCADENA
+                       {: RESULT = new ModificacionArreglo(a, idx1, idx2, val, aleft, aright); :}
+;
+
+// Estructuras de Control
 WHILE ::= _while PAR1 EXPRESION:a PAR2 _llaveizq INSTRUCCIONES:b _llaveder {: RESULT = new While(a, b, aleft, aright); :}
 ; 
 
@@ -135,7 +260,6 @@ ELSEIF ::=  ELSEIF:m _else _if PAR1 EXPRESION:a PAR2 _llaveizq INSTRUCCIONES:b _
           | _else _if PAR1 EXPRESION:a PAR2 _llaveizq INSTRUCCIONES:b _llaveder {: RESULT = new LinkedList<>(); RESULT.add(new If(a, b, aleft, aright)); :}
 ;
 
-// --- SWITCH ---
 SWITCH_STM ::= _switch:a PAR1 EXPRESION:e PAR2 _llaveizq CASES_LIST:c DEFAULT_STM:d _llaveder 
                {: RESULT = new Switch(e, c, d, aleft, aright); :}
              | _switch:a PAR1 EXPRESION:e PAR2 _llaveizq CASES_LIST:c _llaveder 
@@ -148,19 +272,16 @@ CASES_LIST ::= CASES_LIST:l CASE_STM:c {: l.add(c); RESULT = l; :}
              | CASE_STM:c {: LinkedList<Instruccion> l = new LinkedList<>(); l.add(c); RESULT = l; :}
 ;
 
-CASE_STM ::= _case:a EXPRESION:e DOSPUNTOS INSTRUCCIONES:i 
-             {: RESULT = new Case(e, i, aleft, aright); :}
+CASE_STM ::= _case:a EXPRESION:e DOSPUNTOS INSTRUCCIONES:i {: RESULT = new Case(e, i, aleft, aright); :}
 ;
 
 DEFAULT_STM ::= _default DOSPUNTOS INSTRUCCIONES:i {: RESULT = i; :}
 ;
 
-// --- FOR ---
 FOR ::= _for PAR1 ASIGNACION_FOR:a EXPRESION:b FINCADENA ACTUALIZAR_FOR:c PAR2 _llaveizq INSTRUCCIONES:d _llaveder 
         {: RESULT = new For(a, b, c, d, aleft, aright); :}
 ;
 
-// Permite 'var i:int=0' O 'i=0' en el inicio del For
 ASIGNACION_FOR ::= DECLARACION:a {: RESULT = a; :} 
                  | ASIGNACION:a  {: RESULT = a; :}
 ;
@@ -170,19 +291,9 @@ ACTUALIZAR_FOR ::= ID:a IGUAL EXPRESION:b {: RESULT = new AsignacionVar(a, b, al
                  | ID:a MENOSMENOS        {: RESULT = new Incremento(a, false, aleft, aright); :}
 ; 
 
-// --- TRANSFERENCIA ---
 BREAK ::= _break:a FINCADENA {: RESULT = new Break(aleft, aright); :}
 ; 
 CONTINUE ::= _continue:a FINCADENA {: RESULT = new Continue(aleft, aright); :}
-;
-
-// --- DECLARACIÓN Y ASIGNACIÓN ---
-
-DECLARACION ::= VAR ID:b DOSPUNTOS TIPOS:a IGUAL EXPRESION:c FINCADENA {: RESULT = new Declaracion(b, c, a, aleft, aright); :}
-              | VAR ID:b DOSPUNTOS TIPOS:a FINCADENA {: RESULT = new Declaracion(b, null, a, aleft, aright); :}
-;   
-
-ASIGNACION ::= ID:a IGUAL EXPRESION:b FINCADENA {: RESULT = new AsignacionVar(a, b, aleft, aright); :}
 ;
 
 TIPOS ::= INT       {: RESULT = new Tipo(tipoDato.ENTERO);  :}
@@ -192,10 +303,32 @@ TIPOS ::= INT       {: RESULT = new Tipo(tipoDato.ENTERO);  :}
         | CHAR_TYPE {: RESULT = new Tipo(tipoDato.CARACTER); :}
 ;
 
+LISTA_VALORES ::= 
+    // 1. Agregar una Expresión normal a la lista
+      LISTA_VALORES:l COMA EXPRESION:e 
+      {: l.add(e); RESULT = l; :}
+    
+    // 2. Agregar una Sub-Lista (Fila de Matriz) a la lista
+    //    Ej: ..., [1, 2]
+    | LISTA_VALORES:l COMA CORIZQ:c LISTA_VALORES:sub CORDER 
+      {: l.add(new ExpresionArreglo(sub, cleft, cright)); RESULT = l; :}
+
+    // 3. Iniciar lista con una Expresión
+    | EXPRESION:e 
+      {: LinkedList<Instruccion> l = new LinkedList<>(); l.add(e); RESULT = l; :}
+    
+    // 4. Iniciar lista con una Sub-Lista
+    //    Ej: [[1, 2], ...]
+    | CORIZQ:c LISTA_VALORES:sub CORDER 
+      {: LinkedList<Instruccion> l = new LinkedList<>(); 
+         l.add(new ExpresionArreglo(sub, cleft, cright)); 
+         RESULT = l; 
+      :}
+;
+
 // --- EXPRESIONES ---
 
 EXPRESION ::= 
-    // Aritméticas
       MENOS EXPRESION:a           {: RESULT = new Aritmeticas(OperadoresAritmeticos.NEGACION, a, aleft, aright); :} %prec UMENOS
     | EXPRESION:a MAS EXPRESION:b {: RESULT = new Aritmeticas(a, b, OperadoresAritmeticos.SUMA, aleft, aright); :}
     | EXPRESION:a MENOS EXPRESION:b {: RESULT = new Aritmeticas(a, b, OperadoresAritmeticos.RESTA, aleft, aright); :}
@@ -204,7 +337,6 @@ EXPRESION ::=
     | EXPRESION:a POTENCIA EXPRESION:b {: RESULT = new Aritmeticas(a, b, OperadoresAritmeticos.POTENCIA, aleft, aright); :}
     | EXPRESION:a MODULO EXPRESION:b {: RESULT = new Aritmeticas(a, b, OperadoresAritmeticos.MODULO, aleft, aright); :}
     
-    // Relacionales
     | EXPRESION:a EQUALS EXPRESION:b {: RESULT = new Relacionales(a, b, OperadoresRelacionales.EQUALS, aleft, aright); :}
     | EXPRESION:a DIFERENTE EXPRESION:b {: RESULT = new Relacionales(a, b, OperadoresRelacionales.DIFERENTE, aleft, aright); :}
     | EXPRESION:a _menorq EXPRESION:b {: RESULT = new Relacionales(a, b, OperadoresRelacionales.MENOR, aleft, aright); :}
@@ -212,21 +344,27 @@ EXPRESION ::=
     | EXPRESION:a _mayorq EXPRESION:b {: RESULT = new Relacionales(a, b, OperadoresRelacionales.MAYOR, aleft, aright); :}
     | EXPRESION:a _mayorigual EXPRESION:b {: RESULT = new Relacionales(a, b, OperadoresRelacionales.MAYORIGUAL, aleft, aright); :}
 
-    // Lógicas
     | EXPRESION:a AND EXPRESION:b {: RESULT = new Logicas(a, b, OperadoresLogicos.AND, aleft, aright); :}
     | EXPRESION:a OR EXPRESION:b  {: RESULT = new Logicas(a, b, OperadoresLogicos.OR, aleft, aright); :}
     | EXPRESION:a XOR EXPRESION:b {: RESULT = new Logicas(a, b, OperadoresLogicos.XOR, aleft, aright); :}
     | NOT EXPRESION:a             {: RESULT = new Logicas(a, OperadoresLogicos.NOT, aleft, aright); :}
     
-    // Casteos  ---
-    | PAR1:a TIPOS:t PAR2 EXPRESION:e {: RESULT = new Casteo(t, e, aleft, aright); :} %prec UMENOS
+    | ID:a CORIZQ EXPRESION:e CORDER {: RESULT = new AccesoArreglo(a, e, aleft, aright); :}
+    | ID:a CORIZQ EXPRESION:e1 CORDER CORIZQ EXPRESION:e2 CORDER {: RESULT = new AccesoArreglo(a, e1, e2, aleft, aright); :}
+    | ID:a PUNTO REMOVE PAR1 EXPRESION:e PAR2 {: RESULT = new Remove(a, e, aleft, aright); :}
     
-    // Agrupación
+    // Nativas
+    | ID:a PUNTO FIND PAR1 EXPRESION:e PAR2 {: RESULT = new Find(a, e, aleft, aright); :}
+    | LENGTH:a PAR1 EXPRESION:e PAR2 {: RESULT = new FuncionesNativas(e, TipoNativa.LENGTH, aleft, aright); :}
+    | ROUND:a PAR1 EXPRESION:e PAR2 {: RESULT = new FuncionesNativas(e, TipoNativa.ROUND, aleft, aright); :}
+    | TOSTRING:a PAR1 EXPRESION:e PAR2 {: RESULT = new FuncionesNativas(e, TipoNativa.TOSTRING, aleft, aright); :}
+
+    | LLAMADA:a {: RESULT = a; :}
+    | PAR1:a TIPOS:t PAR2 EXPRESION:e {: RESULT = new Casteo(t, e, aleft, aright); :} %prec UMENOS
     | PAR1 EXPRESION:a PAR2  {: RESULT = a; :}
 
-    // Valores Primitivos
     | ENTERO:a    {: RESULT = new Nativo(Integer.parseInt(a), new Tipo(tipoDato.ENTERO), aleft, aright); :}   
-    | DECIMAL:a   {: RESULT = new Nativo(Double.parseDouble(a), new Tipo(tipoDato.DECIMAL), aleft, aright); :} // ParseDouble actualizado
+    | DECIMAL:a   {: RESULT = new Nativo(Double.parseDouble(a), new Tipo(tipoDato.DECIMAL), aleft, aright); :}
     | CHAR:a      {: RESULT = new Nativo(a, new Tipo(tipoDato.CARACTER), aleft, aright); :}
     | CADENA:a    {: RESULT = new Nativo(a, new Tipo(tipoDato.CADENA), aleft, aright); :}
     | TRUE:a      {: RESULT = new Nativo(true, new Tipo(tipoDato.BOOLEANO), aleft, aright); :}

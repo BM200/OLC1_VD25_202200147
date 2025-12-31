@@ -58,6 +58,9 @@ OR = "||"
 NOT = "!"
 XOR = "^"
 
+CORIZQ = "["
+CORDER = "]"
+COMA =   ","
 
 BLANCOS = [\ \r\t\f\n]+
 ENTERO = [0-9]+
@@ -90,6 +93,22 @@ DOUBLE = "double"
 STRING = "string"
 BOOL = "bool"
 CHAR_TYPE= "char"
+
+APPEND ="append"
+REMOVE = "remove"
+
+LIST = "List"
+NEW = "new"
+
+VOID = "void"
+RETURN = "return"
+START = "start"
+
+LENGTH = "length"
+ROUND = "round"
+TOSTRING = "toString"
+FIND = "find"
+
 %%
 // Ignorar blancos y comentarios
 <YYINITIAL> {BLANCOS} { }
@@ -98,8 +117,25 @@ CHAR_TYPE= "char"
 
 // Palabras Reservadas del Sistema
 <YYINITIAL> {PRINT} {return new Symbol(sym.PRINT, yyline, yycolumn, yytext());}
+
+// Palabras reservadas para Listas
+<YYINITIAL> {LIST}      { return new Symbol(sym.LIST, yyline, yycolumn, yytext()); }
+<YYINITIAL> {NEW}       { return new Symbol(sym.NEW, yyline, yycolumn, yytext()); }
+<YYINITIAL> {APPEND}    { return new Symbol(sym.APPEND, yyline, yycolumn, yytext()); }
+<YYINITIAL> {REMOVE}    { return new Symbol(sym.REMOVE, yyline, yycolumn, yytext()); }
+
+<YYINITIAL> {VOID}      { return new Symbol(sym.VOID, yyline, yycolumn, yytext()); }
+<YYINITIAL> {RETURN}    { return new Symbol(sym.RETURN, yyline, yycolumn, yytext()); }
+<YYINITIAL> {START}     { return new Symbol(sym.START, yyline, yycolumn, yytext()); }
+
+<YYINITIAL> {PUNTO}         { return new Symbol(sym.PUNTO, yyline, yycolumn, yytext()); }
 <YYINITIAL> {TRUE} {return new Symbol(sym.TRUE, yyline, yycolumn,yytext());}
 <YYINITIAL> {FALSE} {return new Symbol(sym.FALSE, yyline, yycolumn,yytext());}
+
+<YYINITIAL> {LENGTH}    { return new Symbol(sym.LENGTH, yyline, yycolumn, yytext()); }
+<YYINITIAL> {ROUND}     { return new Symbol(sym.ROUND, yyline, yycolumn, yytext()); }
+<YYINITIAL> {TOSTRING}  { return new Symbol(sym.TOSTRING, yyline, yycolumn, yytext()); }
+<YYINITIAL> {FIND}      { return new Symbol(sym.FIND, yyline, yycolumn, yytext()); }
 
 //Sentencias de Control 
 <YYINITIAL> {_if} {return new Symbol(sym._if, yyline, yycolumn,yytext());}
@@ -135,10 +171,21 @@ CHAR_TYPE= "char"
     return new Symbol(sym.CADENA, yyline, yycolumn,cadena);
     }
 
+
 <YYINITIAL> {FINCADENA} {return new Symbol(sym.FINCADENA, yyline, yycolumn, yytext());}
 <YYINITIAL> {DOSPUNTOS} {return new Symbol(sym.DOSPUNTOS, yyline, yycolumn,yytext());}
 <YYINITIAL> {PAR1} {return new Symbol(sym.PAR1, yyline, yycolumn, yytext());}
 <YYINITIAL> {PAR2} {return new Symbol(sym.PAR2, yyline, yycolumn, yytext());}
+
+// Tus reglas actuales:
+<YYINITIAL> {CORIZQ}         { return new Symbol(sym.CORIZQ, yyline, yycolumn, yytext()); } // <--- No usa la macro
+<YYINITIAL> {CORDER}         { return new Symbol(sym.CORDER, yyline, yycolumn, yytext()); } // <--- No usa la macro
+<YYINITIAL> {COMA}         { return new Symbol(sym.COMA, yyline, yycolumn, yytext()); }   // <--- No usa la macro
+// Tus reglas actuales:
+<YYINITIAL> {CORIZQ} { return new Symbol(sym.CORIZQ, yyline, yycolumn, yytext()); }
+<YYINITIAL> {CORDER} { return new Symbol(sym.CORDER, yyline, yycolumn, yytext()); }
+<YYINITIAL> {COMA}   { return new Symbol(sym.COMA, yyline, yycolumn, yytext()); }
+
 <YYINITIAL> {_llaveizq} {return new Symbol(sym._llaveizq, yyline, yycolumn, yytext());}
 <YYINITIAL> {_llaveder} {return new Symbol(sym._llaveder, yyline, yycolumn, yytext());}
 
@@ -167,7 +214,11 @@ CHAR_TYPE= "char"
 <YYINITIAL> {NOT}   {return new Symbol(sym.NOT, yyline, yycolumn, yytext());}
 <YYINITIAL> {XOR}   {return new Symbol(sym.XOR, yyline, yycolumn, yytext());}
 
+
+
 <YYINITIAL> . {
             listaErrores.add(new Errores("LEXICO", "El carcater "+yytext()+" No pertenece al lenguaje", yyline, yycolumn));
 
 }
+
+

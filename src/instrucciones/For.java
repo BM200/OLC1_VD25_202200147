@@ -88,6 +88,8 @@ public class For extends Instruccion {
                     break; // Rompe el for-each de instrucciones java, saltando directo al paso F (Actualización)
                 }
                 
+                 if (res instanceof Return) return res;
+                
                 // Nota: Si usas una clase Return (Fase 2), agrégala aquí también.
             }
 

@@ -71,7 +71,7 @@ public class Declaracion extends Instruccion {
         }
 
         // Crear Simbolo y guardar
-        Simbolo s = new Simbolo(this.tipo, this.identificador, valorInterpretado, this.linea, this.col);
+       Simbolo s = new Simbolo(this.tipo, this.identificador, valorInterpretado, this.linea, this.col);
         boolean creacion = tabla.setVariables(s);
         
         if(!creacion){

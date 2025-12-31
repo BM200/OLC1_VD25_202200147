@@ -154,15 +154,21 @@ public class Principal extends javax.swing.JFrame {
             var resultado = p.parse();
 
             // 3. Inicializar Estructuras Globales
-            // (Si el parser devuelve null, usamos lista vacía)
-            LinkedList<Instruccion> ast = (resultado.value != null) ? 
-                    (LinkedList<Instruccion>) resultado.value : new LinkedList<>();
+             LinkedList<Instruccion> ast = (LinkedList<Instruccion>) resultado.value;
             
             this.tablaGlobal = new tablaSimbolos(null);
             this.tablaGlobal.setNombre("GLOBAL");
 
-            // Creamos el árbol con el AST obtenido
+            if (ast == null) ast = new LinkedList<>();
+
             this.arbolGlobal = new Arbol(ast);
+            
+            // -----------------------------------------------------------
+            // CORRECCIÓN VITAL: Conectar la tabla del árbol con la principal
+            // -----------------------------------------------------------
+            this.arbolGlobal.setTablaGlobal(this.tablaGlobal); 
+            // -----------------------------------------------------------
+
 
             // 4. Recolectar errores de compilación (Léxicos y Sintácticos)
             this.arbolGlobal.errores.addAll(s.listaErrores);
@@ -172,18 +178,39 @@ public class Principal extends javax.swing.JFrame {
             // Limpiamos consola antes de empezar
             txtConsola.setText(""); 
 
+            // --- PRIMERA PASADA: CARGAR FUNCIONES Y VARIABLES GLOBALES ---
             for (Instruccion ins : ast) {
-                // IMPORTANTE: Validar null por si hubo recuperación de errores en CUP
-                if (ins == null) continue; 
+                if (ins == null) continue;
 
+                // Si es Declaracion, Asignacion, Funcion o Metodo -> EJECUTAR
+                // Si es Start -> IGNORAR (por ahora)
+                if (ins instanceof instrucciones.Start) {
+                    continue; // Saltamos el Start en la primera pasada
+                }
+                
+                // Ejecutamos para cargar funciones y variables en memoria
                 var res = ins.interpretar(this.arbolGlobal, this.tablaGlobal);
 
-                // Si hay error semántico, guardarlo
                 if (res instanceof Errores) {
                     this.arbolGlobal.errores.add((Errores) res);
                 }
             }
 
+            // --- SEGUNDA PASADA: EJECUTAR SOLAMENTE EL START ---
+            for (Instruccion ins : ast) {
+                if (ins == null) continue;
+
+                if (ins instanceof instrucciones.Start) {
+                    // Ahora sí ejecutamos el Start. 
+                    // Como la pasada 1 ya terminó, la función 'main' ya existe en el árbol.
+                    var res = ins.interpretar(this.arbolGlobal, this.tablaGlobal);
+                    
+                    if (res instanceof Errores) {
+                        this.arbolGlobal.errores.add((Errores) res);
+                    }
+                    break; // Solo debe haber un Start, terminamos.
+                }
+            }
             // 6. Mostrar Salidas en la Consola GUI
             txtConsola.setText(this.arbolGlobal.getConsolas());
 

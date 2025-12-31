@@ -69,6 +69,11 @@ public class While extends Instruccion{
                 if (resultado instanceof Continue) {
                     break; // Detiene el 'for' de instrucciones y salta a la siguiente vuelta del 'while(true)'
                 }
+                
+                if (resultado instanceof Return) return resultado;
+
+                
+                
             }
         }
         

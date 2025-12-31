@@ -27,7 +27,7 @@ public class Simbolo {
         
     }
     //--Getter y Setter nuevo
-    public String getEntorno() { return (String) entorno; }
+    public String getEntorno() { return entorno; }
     
     public void setEntorno(String entorno) { this.entorno = entorno; }
     
